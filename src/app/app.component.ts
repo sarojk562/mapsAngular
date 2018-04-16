@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ViewChild } from '@angular/core';
+import { DataService } from '../core/data.service';
+import { Subscription } from 'rxjs/Subscription';
 import { } from '@types/googlemaps';
 
 @Component({
@@ -7,16 +9,35 @@ import { } from '@types/googlemaps';
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+
+export class AppComponent implements OnInit, OnDestroy {
 
     @ViewChild('gmap') gmapElement: any;
     map: google.maps.Map;
 
-    latitude: any;
-    longitude: any;
+    latitude: any = 17.4617971;
+    longitude: any = 78.3671564;
+
+    Location: Object;
+    sub: Subscription;
+
+    constructor(private dataService: DataService) { }
 
     ngOnInit() {
-        const location = new google.maps.LatLng(17.4617, 78.3671);
+
+        this.sub = this.dataService.getLocations().subscribe(loc => {
+            this.Location = loc;
+            this.latitude = this.Location['lat'];
+            this.longitude = this.Location['lon'];
+            this.setMarker(this.latitude, this.longitude);
+        });
+
+        this.setMarker(this.latitude, this.longitude); // Setting Up initial location marker
+
+    }
+
+    setMarker(latitude, longitude) {
+        const location = new google.maps.LatLng(this.latitude, this.longitude);
         const mapProp = {
             center: location,
             zoom: 15,
@@ -31,5 +52,9 @@ export class AppComponent {
         });
 
         marker.setMap(this.map);
+    }
+
+    ngOnDestroy() {
+        this.sub.unsubscribe();
     }
 }
