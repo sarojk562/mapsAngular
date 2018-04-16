@@ -20,7 +20,7 @@ export class DataService {
     server_url = 'http://139.59.74.175:2030';
 
     getLocations(): Observable<Object> {
-        this.socket = socketIo(this.local_url);
+        this.socket = socketIo(this.server_url);
 
         this.socket.on('data', (res) => {
             this.observer.next(res.data);
